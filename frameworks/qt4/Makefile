@@ -12,12 +12,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=qt4
-PKG_VERSION:=4.8.1
+PKG_VERSION:=4.8.7
 PKG_RELEASE:=1
-PKG_MD5SUM:=7960ba8e18ca31f0c6e4895a312f92ff
+PKG_HASH:=e2882295097e47fe089f8ac741a95fef47e0a73a3f3cdf21b56990638f626ea0
+#PKG_MD5SUM:=7960ba8e18ca31f0c6e4895a312f92ff
 
 PKG_SOURCE:=qt-everywhere-opensource-src-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=ftp://ftp.qt.nokia.com/qt/source
+PKG_SOURCE_URL:=https://download.qt.io/archive/qt/$(basename $(PKG_VERSION))/$(PKG_VERSION)/
 PKG_BUILD_DIR=$(BUILD_DIR)/qt-everywhere-opensource-src-$(PKG_VERSION)
 PKG_BUILD_PARALLEL:=1
 
@@ -53,7 +54,7 @@ define Package/qt4/Default
   SUBMENU:=Frameworks and Toolkits
   TITLE:=qt4
   DEPENDS:=qt4
-  URL:=http://qt.nokia.com/
+  URL:=http://www.qt.io/
   MAINTAINER:=Mirko Vogt <mirko@openwrt.org>
 endef
 
@@ -67,8 +68,8 @@ define Package/qt4-gui
   $(call Package/qt4/Default)
   DEFAULT:=
   DEPENDS+=+PACKAGE_qt4-gui:libpng +PACKAGE_qt4-gui:libtiff +PACKAGE_qt4-gui:libjpeg +PACKAGE_qt4-gui:libfreetype +qt4-network \
-	+FEATURE_drawing-backend_libX11:libX11 \
-	+FEATURE_drawing-backend_libX11:libXext @DISPLAY_SUPPORT
+	$(if $(CONFIG_FEATURE_drawing-backend_libX11), +libX11) \
+	$(if $(CONFIG_FEATURE_drawing-backend_libX11), +libXext) @DISPLAY_SUPPORT
   TITLE+=(gui)
 endef
 
@@ -230,7 +231,7 @@ endef
 define Package/qt4-drivers-mouse-tslibmousedriver
   $(call Package/qt4-drivers-mouse/Default)
   TITLE+=tslibmousedriver
-  DEPENDS+=+PACKAGE_qt4-tslibmousedriver:tslib
+  DEPENDS+=+tslib
 endef
 
 ###
@@ -243,7 +244,7 @@ endef
 define Package/qt4-drivers-gfx-directfb
   $(call Package/qt4-drivers-gfx/Default)
   TITLE+=directfb
-  DEPENDS+=@FEATURE_drawing-backend_DirectFB +qt4-drivers-gfx-directfb:directfb
+  DEPENDS+=@FEATURE_drawing-backend_DirectFB $(if $(CONFIG_FEATURE_drawing-backend_DirectFB), +directfb)
 endef
 
 define Package/qt4-drivers-gfx-linuxfb
